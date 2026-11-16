@@ -32,9 +32,6 @@ local VERDE_CLARO = Color3.fromRGB(120, 220, 140)
 local AMBAR       = Color3.fromRGB(240, 180, 120)
 local MORADO      = Color3.fromRGB(160, 80, 200)
 local CELESTE     = Color3.fromRGB(60, 140, 200)
-local AZUL_DISCORD = Color3.fromRGB(88, 101, 242)
-local AZUL_DISCORD_CLARO = Color3.fromRGB(150, 170, 255)
-local AZUL_DISCORD_GRAD = Color3.fromRGB(114, 137, 218)
 
 local TWEEN_HOVER   = TweenInfo.new(0.12, Enum.EasingStyle.Quad)
 local TWEEN_COLOR   = TweenInfo.new(0.2, Enum.EasingStyle.Quad)
@@ -83,8 +80,6 @@ local textos = {
         autoTPApagado = "●  TP OFF",
         autoTPSinVerificar = "●  Sin verificar",
         autoTPTimerLabel = "TIEMPO",
-        discordLabel = "Discord First Hub",
-        discordCopiado = "¡Link copiado! Pégalo en Discord",
     },
     en = {
         titulo = "SPEED CLICK FOR OWNER",
@@ -120,8 +115,6 @@ local textos = {
         autoTPApagado = "●  TP OFF",
         autoTPSinVerificar = "●  Unverified",
         autoTPTimerLabel = "TIME",
-        discordLabel = "Discord First Hub",
-        discordCopiado = "Link copied! Paste it in Discord",
     },
 }
 
@@ -138,8 +131,6 @@ local ESTADO_CLAVE = {
     ["TELEPORTANDO"]  = "autoTPTp",
     ["SIN TIMER"]     = "autoTPNoTimer",
 }
-
-local DISCORD_URL = "https://discord.gg/4gwAeR9uUz"
 
 local running, flyActive = false, false
 local clickRemotes = {}
@@ -933,113 +924,6 @@ local function reconstruirMenu()
     toggleBtn.ZIndex = 6
     toggleBtn.Parent = toggleTrack
 
-    local discordBtn = Instance.new("TextButton")
-    discordBtn.Size = UDim2.new(1, -28, 0, 44)
-    discordBtn.Position = UDim2.new(0, 14, 0, 104)
-    discordBtn.BackgroundColor3 = AZUL_DISCORD
-    discordBtn.Text = ""
-    discordBtn.TextColor3 = TEXTO
-    discordBtn.Font = Enum.Font.GothamMedium
-    discordBtn.TextSize = 13
-    discordBtn.ZIndex = 3
-    discordBtn.Parent = page2
-    Instance.new("UICorner", discordBtn).CornerRadius = UDim.new(0, 12)
-
-    local discordGrad = Instance.new("UIGradient")
-    discordGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, AZUL_DISCORD_GRAD),
-        ColorSequenceKeypoint.new(1, AZUL_DISCORD)
-    })
-    discordGrad.Rotation = 90
-    discordGrad.Parent = discordBtn
-
-    aplicarStroke(discordBtn, AZUL_DISCORD_CLARO, 1.5, 0.4)
-
-    local discordIcon = Instance.new("Frame")
-    discordIcon.Size = UDim2.new(0, 26, 0, 26)
-    discordIcon.Position = UDim2.new(0, 8, 0.5, -13)
-    discordIcon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    discordIcon.BackgroundTransparency = 0.15
-    discordIcon.BorderSizePixel = 0
-    discordIcon.ZIndex = 4
-    discordIcon.Parent = discordBtn
-    Instance.new("UICorner", discordIcon).CornerRadius = UDim.new(0, 8)
-
-    local discordIconText = Instance.new("TextLabel")
-    discordIconText.Size = UDim2.new(1, 0, 1, 0)
-    discordIconText.BackgroundTransparency = 1
-    discordIconText.Text = "D"
-    discordIconText.TextColor3 = AZUL_DISCORD
-    discordIconText.Font = Enum.Font.GothamBold
-    discordIconText.TextSize = 16
-    discordIconText.ZIndex = 5
-    discordIconText.Parent = discordIcon
-
-    local discordLabel = Instance.new("TextLabel")
-    discordLabel.Size = UDim2.new(1, -44, 1, 0)
-    discordLabel.Position = UDim2.new(0, 40, 0, 0)
-    discordLabel.BackgroundTransparency = 1
-    discordLabel.Text = t("discordLabel")
-    discordLabel.TextColor3 = TEXTO
-    discordLabel.Font = Enum.Font.GothamMedium
-    discordLabel.TextSize = 13
-    discordLabel.TextXAlignment = Enum.TextXAlignment.Left
-    discordLabel.ZIndex = 4
-    discordLabel.Parent = discordBtn
-
-    local discordCopiado = Instance.new("TextLabel")
-    discordCopiado.Size = UDim2.new(1, -44, 1, 0)
-    discordCopiado.Position = UDim2.new(0, 40, 0, 0)
-    discordCopiado.BackgroundTransparency = 1
-    discordCopiado.Text = t("discordCopiado")
-    discordCopiado.TextColor3 = VERDE_CLARO
-    discordCopiado.Font = Enum.Font.GothamMedium
-    discordCopiado.TextSize = 12
-    discordCopiado.TextXAlignment = Enum.TextXAlignment.Left
-    discordCopiado.TextTransparency = 1
-    discordCopiado.ZIndex = 4
-    discordCopiado.Parent = discordBtn
-
-    local copiandoToken = 0
-
-    discordBtn.MouseButton1Click:Connect(function()
-        copiandoToken += 1
-        local miToken = copiandoToken
-
-        local exito = pcall(function()
-            if setclipboard then
-                setclipboard(DISCORD_URL)
-            elseif toclipboard then
-                toclipboard(DISCORD_URL)
-            else
-                error("No clipboard API")
-            end
-        end)
-
-        if exito then
-            tw(discordLabel, TWEEN_COLOR, {TextTransparency = 1})
-            tw(discordCopiado, TWEEN_COLOR, {TextTransparency = 0})
-            tw(discordBtn, TWEEN_COLOR, {BackgroundColor3 = VERDE})
-
-            task.delay(2, function()
-                if miToken ~= copiandoToken then return end
-                tw(discordLabel, TWEEN_COLOR, {TextTransparency = 0})
-                tw(discordCopiado, TWEEN_COLOR, {TextTransparency = 1})
-                tw(discordBtn, TWEEN_COLOR, {BackgroundColor3 = AZUL_DISCORD})
-            end)
-        else
-            discordLabel.Text = DISCORD_URL
-            discordLabel.TextSize = 9
-            tw(discordBtn, TWEEN_COLOR, {BackgroundColor3 = ROJO})
-            task.delay(4, function()
-                if miToken ~= copiandoToken then return end
-                discordLabel.Text = t("discordLabel")
-                discordLabel.TextSize = 13
-                tw(discordBtn, TWEEN_COLOR, {BackgroundColor3 = AZUL_DISCORD})
-            end)
-        end
-    end)
-
     local idiomaBtn = Instance.new("TextButton")
     idiomaBtn.Size = UDim2.new(1, -28, 0, 44)
     idiomaBtn.Position = UDim2.new(0, 14, 0, 296)
@@ -1353,7 +1237,9 @@ local function reconstruirMenu()
                 yaVerificado = true
                 cancelarIntento()
                 volverAPosicion()
-                if autoActivo then detenerAuto() end
+                if autoActivo then
+                    setEstado("ESPERANDO", VERDE_CLARO)
+                end
             end)
         end
         if TowerRewardDenied then
@@ -1465,7 +1351,6 @@ local function reconstruirMenu()
     setupBoton(closeBtn)
     setupBoton(circle, true)
     setupBoton(idiomaBtn)
-    setupBoton(discordBtn)
 
     local function actualizarNav()
         tw(prevBtn, TWEEN_COLOR, {BackgroundTransparency = paginaActual == 1 and 0.65 or 0})
@@ -2009,8 +1894,6 @@ local function reconstruirMenu()
         confirmTexto.Text = t("cerrarTitulo")
         confirmSi.Text = t("si")
         confirmNo.Text = t("cancelar")
-        discordLabel.Text = t("discordLabel")
-        discordCopiado.Text = t("discordCopiado")
 
         speedText.Text = running and t("stop") or t("start")
         flyBtn.Text = flyActive and t("flyOn") or t("flyOff")
