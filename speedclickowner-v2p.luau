@@ -6,6 +6,7 @@ local RS = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
 local pg = player:WaitForChild("PlayerGui", 10)
 
@@ -44,9 +45,20 @@ local conexiones = {}
 local gradTweens = {}
 local shineToken = 0
 local clickConn = nil
+local startToken = 0
 local PRESUPUESTO_FRAME = 0.006
-local calibrando = false
 local numRemotesFijo = 0
+
+local function calcularEscala()
+    local viewport = workspace.CurrentCamera.ViewportSize
+    local escala = math.clamp(math.min(viewport.X / 1280, viewport.Y / 720), 0.6, 1.2)
+    if esMovil then
+        escala = math.min(escala, 0.8)
+    end
+    return escala
+end
+
+local escalaBase = calcularEscala()
 
 local function tw(obj, info, props)
     local t = TweenService:Create(obj, info, props)
@@ -91,7 +103,7 @@ main.Parent = gui
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 16)
 
 local mainEscala = Instance.new("UIScale")
-mainEscala.Scale = 0.85
+mainEscala.Scale = escalaBase
 mainEscala.Parent = main
 
 local mainGrad = Instance.new("UIGradient")
@@ -496,7 +508,7 @@ local pulsoEstado = TweenService:Create(
 local speedBtn = Instance.new("TextButton")
 speedBtn.Size = UDim2.new(1, -28, 0, 46)
 speedBtn.Position = UDim2.new(0, 14, 0, 100)
-speedBtn.BackgroundColor3 = ORO
+speedBtn.BackgroundColor3 = Color3.new(1, 1, 1)
 speedBtn.Text = ""
 speedBtn.TextColor3 = NEGRO
 speedBtn.Font = Enum.Font.GothamBold
@@ -625,6 +637,18 @@ local tpBorde = Instance.new("UIStroke", tpBtn)
 tpBorde.Color = ORO
 tpBorde.Thickness = 1.5
 tpBorde.Transparency = 0.4
+
+local antiafkLabel = Instance.new("TextLabel")
+antiafkLabel.Size = UDim2.new(1, -28, 0, 16)
+antiafkLabel.Position = UDim2.new(0, 14, 0, 330)
+antiafkLabel.BackgroundTransparency = 1
+antiafkLabel.Text = "AntiAFK: ACTIVO"
+antiafkLabel.TextColor3 = VERDE_CLARO
+antiafkLabel.Font = Enum.Font.GothamBold
+antiafkLabel.TextSize = 11
+antiafkLabel.TextXAlignment = Enum.TextXAlignment.Center
+antiafkLabel.ZIndex = 3
+antiafkLabel.Parent = page1
 
 local page2Titulo = Instance.new("TextLabel")
 page2Titulo.Size = UDim2.new(1, -28, 0, 24)
@@ -783,12 +807,16 @@ end
 
 local function formatearTiempo(segs)
     segs = math.floor(segs)
-    local m = math.floor(segs / 60)
+    local h = math.floor(segs / 3600)
+    local m = math.floor((segs % 3600) / 60)
     local s = segs % 60
-    if m > 0 then
+    if h > 0 then
+        return string.format("%dh %dm %ds", h, m, s)
+    elseif m > 0 then
         return string.format("%dm %ds", m, s)
+    else
+        return string.format("%ds", s)
     end
-    return string.format("%ds", s)
 end
 
 local function iniciarShine()
@@ -830,7 +858,7 @@ local function setRunning(on)
         pulsoEstado:Cancel()
         estadoBorde.Transparency = 0.6
         speedText.Text = "▶  START"
-        tw(speedBtn, TWEEN_COLOR, {BackgroundColor3 = ORO})
+        tw(speedBtn, TWEEN_COLOR, {BackgroundColor3 = Color3.new(1, 1, 1)})
         speedGrad.Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0, ORO_CLARO),
             ColorSequenceKeypoint.new(1, ORO)
@@ -905,68 +933,75 @@ local function startFly()
     end)
 end
 
+-- ✅ START: cambio visual inmediato, calibración en paralelo
 speedBtn.MouseButton1Click:Connect(function()
-    if calibrando then return end
     if running then
+        startToken += 1
         setRunning(false)
         return
     end
 
-    detectar()
-    if #clickRemotes == 0 then
-        funcionando.Text = "●  Sin remotes"
-        tw(funcionando, TWEEN_COLOR, {TextColor3 = AMBAR})
-        estadoBorde.Color = AMBAR
-        return
-    end
-
-    local t = tonumber(waitBox.Text) or 0.005
-    if t <= 0 then t = 0.005 end
-    if t < 0.0001 then t = 0.0001 end
-
-    calibrando = true
-    funcionando.Text = "●  Calibrando..."
-    tw(funcionando, TWEEN_COLOR, {TextColor3 = AMBAR})
-    estadoBorde.Color = AMBAR
-    yaDetectado = false
-    detectar()
-    task.wait(0.5)
-    calibrando = false
-    if not gui.Parent then return end
-    if #clickRemotes == 0 then
-        funcionando.Text = "●  Sin remotes"
-        return
-    end
-    numRemotesFijo = #clickRemotes
+    startToken += 1
+    local myToken = startToken
 
     setRunning(true)
 
-    local numRemotes = numRemotesFijo
-    local acumulado = 0
+    funcionando.Text = "●  Calibrando..."
+    tw(funcionando, TWEEN_COLOR, {TextColor3 = AMBAR})
+    estadoBorde.Color = AMBAR
 
-    if clickConn then clickConn:Disconnect() end
-    clickConn = RunService.Heartbeat:Connect(function(dt)
-        if not running then
-            clickConn:Disconnect()
-            clickConn = nil
+    task.spawn(function()
+        detectar()
+        yaDetectado = false
+        detectar()
+        task.wait(0.5)
+
+        if myToken ~= startToken then return end
+        if not gui.Parent then return end
+        if not running then return end
+
+        if #clickRemotes == 0 then
+            setRunning(false)
+            funcionando.Text = "●  Sin remotes"
+            tw(funcionando, TWEEN_COLOR, {TextColor3 = AMBAR})
+            estadoBorde.Color = AMBAR
             return
         end
-        acumulado += dt
-        local limite = os.clock() + PRESUPUESTO_FRAME
-        while acumulado >= t do
-            acumulado -= t
-            for j = 1, numRemotes do
-                local r = clickRemotes[j]
-                if r then
-                    pcall(r.FireServer, r)
-                    clicksAcumulados += 1
+
+        numRemotesFijo = #clickRemotes
+        funcionando.Text = "●  Encendido"
+        tw(funcionando, TWEEN_COLOR, {TextColor3 = VERDE_CLARO})
+        estadoBorde.Color = VERDE_CLARO
+
+        local numRemotes = numRemotesFijo
+        local acumulado = 0
+        local t = tonumber(waitBox.Text) or 0.005
+        if t <= 0 then t = 0.005 end
+        if t < 0.0001 then t = 0.0001 end
+
+        if clickConn then clickConn:Disconnect() end
+        clickConn = RunService.Heartbeat:Connect(function(dt)
+            if not running or myToken ~= startToken then
+                if clickConn then clickConn:Disconnect() clickConn = nil end
+                return
+            end
+            acumulado += dt
+            local limite = os.clock() + PRESUPUESTO_FRAME
+            while acumulado >= t do
+                acumulado -= t
+                for j = 1, numRemotes do
+                    local r = clickRemotes[j]
+                    if r then
+                        pcall(r.FireServer, r)
+                        clicksAcumulados += 1
+                    end
+                end
+                if os.clock() >= limite then
+                    acumulado = 0
+                    break
                 end
             end
-            if os.clock() >= limite then
-                acumulado = 0
-                break
-            end
-        end
+        end)
     end)
 end)
 
@@ -1039,15 +1074,9 @@ task.spawn(function()
     end
 end)
 
-task.spawn(function()
-    while gui.Parent do
-        task.wait(45)
-        local char = player.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.Jump = true end
-        end
-    end
+conectar(player.Idled, function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new(0, 0))
 end)
 
 conectar(player.CharacterAdded, function()
@@ -1086,10 +1115,10 @@ local function restaurar()
     t.Completed:Wait()
     circleWrapper.Visible = false
     main.Position = savedPos
-    mainEscala.Scale = 0.85
+    mainEscala.Scale = escalaBase
     main.Visible = true
     pausarGradientes(false)
-    tw(mainEscala, TWEEN_ENTRADA, {Scale = 1})
+    tw(mainEscala, TWEEN_ENTRADA, {Scale = escalaBase})
     animando = false
 end
 
@@ -1148,53 +1177,19 @@ conectar(UIS.InputEnded, function(input)
     end
 end)
 
-local antiafkActivo = true
-
-local antiafkLabel = Instance.new("TextLabel")
-antiafkLabel.Size = UDim2.new(1, -28, 0, 16)
-antiafkLabel.Position = UDim2.new(0, 14, 0, 330)
-antiafkLabel.BackgroundTransparency = 1
-antiafkLabel.Text = "AntiAFK: ON"
-antiafkLabel.TextColor3 = VERDE_CLARO
-antiafkLabel.Font = Enum.Font.GothamBold
-antiafkLabel.TextSize = 11
-antiafkLabel.TextXAlignment = Enum.TextXAlignment.Center
-antiafkLabel.ZIndex = 3
-antiafkLabel.Parent = page1
-
-task.spawn(function()
-    while gui.Parent do
-        task.wait(1)
-        local char = player.Character
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-        antiafkActivo = (hum ~= nil and hum.Health > 0)
-        if antiafkActivo then
-            antiafkLabel.Text = "AntiAFK: ON"
-            antiafkLabel.TextColor3 = VERDE_CLARO
-        else
-            antiafkLabel.Text = "AntiAFK: OFF"
-            antiafkLabel.TextColor3 = ROJO
-        end
-    end
-end)
-
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 28, 0, 28)
-closeBtn.Position = UDim2.new(1, -32, 0, 18)
-closeBtn.BackgroundColor3 = ROJO
-closeBtn.Text = "X"
-closeBtn.TextColor3 = TEXTO
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 14
-closeBtn.ZIndex = 4
-closeBtn.Parent = titleBar
-Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
-
+-- ============================================================
+-- DIÁLOGO DE CONFIRMACIÓN CON CUENTA REGRESIVA
+-- Usa session token para evitar que el timer de 5s se autodestruya.
+-- CANCELAR restaura el menú. Auto-cancelar a 5s restaura el menú.
+-- SÍ destruye el GUI.
+-- ============================================================
 local confirmando = false
 local confirmTimer = nil
+local confirmCountdownTask = nil
+local confirmSession = 0
 
 local confirmFrame = Instance.new("Frame")
-confirmFrame.Size = UDim2.new(0, 200, 0, 100)
+confirmFrame.Size = UDim2.new(0, 200, 0, 120)
 confirmFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 confirmFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 confirmFrame.BackgroundColor3 = NEGRO_2
@@ -1214,7 +1209,7 @@ confirmBorde.Thickness = 1.5
 confirmBorde.Transparency = 0.3
 
 local confirmTexto = Instance.new("TextLabel")
-confirmTexto.Size = UDim2.new(1, -20, 0, 30)
+confirmTexto.Size = UDim2.new(1, -20, 0, 24)
 confirmTexto.Position = UDim2.new(0, 10, 0, 8)
 confirmTexto.BackgroundTransparency = 1
 confirmTexto.Text = "¿Seguro que quieres cerrar?"
@@ -1224,9 +1219,20 @@ confirmTexto.TextSize = 12
 confirmTexto.ZIndex = 51
 confirmTexto.Parent = confirmFrame
 
+local confirmTiempo = Instance.new("TextLabel")
+confirmTiempo.Size = UDim2.new(1, -20, 0, 20)
+confirmTiempo.Position = UDim2.new(0, 10, 0, 34)
+confirmTiempo.BackgroundTransparency = 1
+confirmTiempo.Text = "5s"
+confirmTiempo.TextColor3 = AMBAR
+confirmTiempo.Font = Enum.Font.GothamBold
+confirmTiempo.TextSize = 14
+confirmTiempo.ZIndex = 51
+confirmTiempo.Parent = confirmFrame
+
 local confirmSi = Instance.new("TextButton")
 confirmSi.Size = UDim2.new(0.45, 0, 0, 34)
-confirmSi.Position = UDim2.new(0.03, 0, 0, 48)
+confirmSi.Position = UDim2.new(0.03, 0, 0, 68)
 confirmSi.BackgroundColor3 = ROJO
 confirmSi.Text = "SÍ"
 confirmSi.TextColor3 = TEXTO
@@ -1238,7 +1244,7 @@ Instance.new("UICorner", confirmSi).CornerRadius = UDim.new(0, 8)
 
 local confirmNo = Instance.new("TextButton")
 confirmNo.Size = UDim2.new(0.45, 0, 0, 34)
-confirmNo.Position = UDim2.new(0.52, 0, 0, 48)
+confirmNo.Position = UDim2.new(0.52, 0, 0, 68)
 confirmNo.BackgroundColor3 = VERDE
 confirmNo.Text = "CANCELAR"
 confirmNo.TextColor3 = TEXTO
@@ -1248,17 +1254,26 @@ confirmNo.ZIndex = 51
 confirmNo.Parent = confirmFrame
 Instance.new("UICorner", confirmNo).CornerRadius = UDim.new(0, 8)
 
-local function cerrarConfirm()
-    confirmando = false
-    if confirmTimer then
-        task.cancel(confirmTimer)
-        confirmTimer = nil
+local function cancelarCountdown()
+    if confirmCountdownTask then
+        local t = confirmCountdownTask
+        confirmCountdownTask = nil
+        pcall(task.cancel, t)
     end
+end
+
+local function cerrarConfirm()
+    if not confirmando then return end
+    confirmando = false
+    confirmSession += 1
+    cancelarCountdown()
+    confirmTimer = nil
     local t = TweenService:Create(confirmEscala, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {Scale = 0.8})
     t:Play()
     t.Completed:Wait()
     confirmFrame.Visible = false
     main.Visible = true
+    closeBtn.Visible = true
 end
 
 closeBtn.MouseButton1Click:Connect(function()
@@ -1267,11 +1282,31 @@ closeBtn.MouseButton1Click:Connect(function()
         return
     end
     confirmando = true
+    confirmSession += 1
+    local mySession = confirmSession
     main.Visible = false
+    closeBtn.Visible = false
     confirmFrame.Visible = true
     confirmEscala.Scale = 0.8
     TweenService:Create(confirmEscala, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = 1}):Play()
-    confirmTimer = task.delay(5, cerrarConfirm)
+
+    local restante = 5
+    confirmTiempo.Text = restante .. "s"
+    confirmCountdownTask = task.spawn(function()
+        while restante > 0 and confirmando and mySession == confirmSession do
+            task.wait(1)
+            restante -= 1
+            if confirmando and mySession == confirmSession then
+                confirmTiempo.Text = restante .. "s"
+            end
+        end
+    end)
+
+    confirmTimer = task.delay(5, function()
+        if confirmando and mySession == confirmSession then
+            cerrarConfirm()
+        end
+    end)
 end)
 
 confirmSi.MouseButton1Click:Connect(function()
@@ -1285,10 +1320,16 @@ end)
 gui.Destroying:Connect(function()
     running = false
     shineToken += 1
+    startToken += 1
     if clickConn then
         clickConn:Disconnect()
         clickConn = nil
     end
+    if confirmTimer then
+        pcall(task.cancel, confirmTimer)
+        confirmTimer = nil
+    end
+    cancelarCountdown()
     stopFly()
     for _, c in ipairs(conexiones) do
         c:Disconnect()
@@ -1300,6 +1341,13 @@ gui.Destroying:Connect(function()
     pulsoEstado:Cancel()
 end)
 
-tw(mainEscala, TWEEN_ENTRADA, {Scale = 1})
+conectar(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"), function()
+    if not animando then
+        escalaBase = calcularEscala()
+        mainEscala.Scale = escalaBase
+    end
+end)
+
+tw(mainEscala, TWEEN_ENTRADA, {Scale = escalaBase})
 
 print("[Speed Click for Owner v2] Listo · " .. (esMovil and "Mobile" or "PC"))
