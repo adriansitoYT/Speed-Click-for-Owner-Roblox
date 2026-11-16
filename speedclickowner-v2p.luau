@@ -1085,9 +1085,9 @@ local function reconstruirMenu()
         intentoEnCurso = false
     end
 
-    local function intentarReclamar()
+    local function intentarReclamar(forzar)
+        if not forzar and tick() - ultimoIntento < COOLDOWN_INTENTO then return end
         if intentoEnCurso then return end
-        if tick() - ultimoIntento < COOLDOWN_INTENTO then return end
         ultimoIntento = tick()
         intentoEnCurso = true
         intentoToken += 1
@@ -1169,7 +1169,7 @@ local function reconstruirMenu()
         if not yaVerificado then
             intentoEnCurso = false
             ultimoIntento = 0
-            intentarReclamar()
+            intentarReclamar(true)
             yaVerificado = true
         end
 
@@ -1195,13 +1195,19 @@ local function reconstruirMenu()
                         timerEnReclamo = -1
                         timestampReclamo = -1
                         if autoActivo then setEstado("SIN VERIFICAR", TEXTO_GRIS) end
-                        intentarReclamar()
+                        intentarReclamar(true)
                         if not autoActivo then return end
+                        task.wait(0.2)
+                        buscarTimer(true)
+                        actualizarCache()
                         timerAnterior = leerTimerScript()
                     elseif tv <= 0 then
                         if not autoActivo then return end
-                        intentarReclamar()
+                        intentarReclamar(true)
                         if not autoActivo then return end
+                        task.wait(0.2)
+                        buscarTimer(true)
+                        actualizarCache()
                         timerAnterior = leerTimerScript()
                     else
                         timerAnterior = tv
