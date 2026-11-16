@@ -1,6 +1,6 @@
 -- FIRST HUB, DISCORD: https://discord.gg/4gwAeR9uUz
 
-print("[Speed Click for Owner v1] Cargando...")
+print("[Speed Click for Owner v1.1] Cargando...")
 task.wait(0.5)
 
 local Players = game:GetService("Players")
@@ -38,7 +38,7 @@ end
 local textos = {
     es = {
         titulo = "Speed Click for Owner",
-        subtitulo = "v1  ·  First Hub  ·  %s",
+        subtitulo = "v1.1  ·  First Hub  ·  %s",
         pc = "PC",
         mobile = "Mobile",
         apagado = "●  Apagado",
@@ -60,7 +60,7 @@ local textos = {
     },
     en = {
         titulo = "Speed Click for Owner",
-        subtitulo = "v1  ·  First Hub  ·  %s",
+        subtitulo = "v1.1  ·  First Hub  ·  %s",
         pc = "PC",
         mobile = "Mobile",
         apagado = "●  Off",
@@ -742,4 +742,4 @@ workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(functio
     mainEscala.Scale = escalaBase
 end)
 
-print("[Speed Click for Owner v1] Listo · " .. (esMovil and "Mobile" or "PC") .. " · Idioma: " .. idiomaActual)
+print("[Speed Click for Owner v1.1] Listo · " .. (esMovil and "Mobile" or "PC") .. " · Idioma: " .. idiomaActual)
