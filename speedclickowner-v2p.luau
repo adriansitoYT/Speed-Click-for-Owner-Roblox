@@ -49,6 +49,18 @@ local startToken = 0
 local PRESUPUESTO_FRAME = 0.006
 local numRemotesFijo = 0
 
+local controlModule = nil
+task.spawn(function()
+    local ok, result = pcall(function()
+        local ps = player:WaitForChild("PlayerScripts", 10)
+        if not ps then return nil end
+        local pm = require(ps:WaitForChild("PlayerModule", 10))
+        if not pm then return nil end
+        return pm:GetControls()
+    end)
+    if ok then controlModule = result end
+end)
+
 local function calcularEscala()
     local viewport = workspace.CurrentCamera.ViewportSize
     local escala = math.clamp(math.min(viewport.X / 1280, viewport.Y / 720), 0.6, 1.2)
@@ -920,13 +932,31 @@ local function startFly()
             stopFly()
             return
         end
+
         local dir = Vector3.zero
-        if UIS:IsKeyDown(Enum.KeyCode.W) then dir = dir + camera.CFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.S) then dir = dir - camera.CFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.A) then dir = dir - camera.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.D) then dir = dir + camera.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.yAxis end
-        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir = dir - Vector3.yAxis end
+
+        -- ✅ Si controlModule está disponible, usar GetMoveVector (funciona en móvil y PC)
+        if controlModule then
+            local ok, moveVector = pcall(function()
+                return controlModule:GetMoveVector()
+            end)
+            if ok and typeof(moveVector) == "Vector3" then
+                -- GetMoveVector devuelve X (derecha/izquierda) y Z (adelante/atrás) en espacio de cámara
+                dir = camera.CFrame.RightVector * moveVector.X + camera.CFrame.LookVector * (-moveVector.Z)
+            end
+        else
+            -- Fallback para PC si controlModule aún no cargó
+            if UIS:IsKeyDown(Enum.KeyCode.W) then dir = dir + camera.CFrame.LookVector end
+            if UIS:IsKeyDown(Enum.KeyCode.S) then dir = dir - camera.CFrame.LookVector end
+            if UIS:IsKeyDown(Enum.KeyCode.A) then dir = dir - camera.CFrame.RightVector end
+            if UIS:IsKeyDown(Enum.KeyCode.D) then dir = dir + camera.CFrame.RightVector end
+        end
+
+        -- ✅ Movimiento vertical adicional (Espacio en PC, botón de salto en móvil)
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then
+            dir = dir + Vector3.yAxis
+        end
+
         if dir.Magnitude > 0 then dir = dir.Unit end
         flyBV.Velocity = dir * speed
         flyBG.CFrame = camera.CFrame
@@ -1179,9 +1209,6 @@ end)
 
 -- ============================================================
 -- DIÁLOGO DE CONFIRMACIÓN CON CUENTA REGRESIVA
--- Usa session token para evitar que el timer de 5s se autodestruya.
--- CANCELAR restaura el menú. Auto-cancelar a 5s restaura el menú.
--- SÍ destruye el GUI.
 -- ============================================================
 local confirmando = false
 local confirmTimer = nil
