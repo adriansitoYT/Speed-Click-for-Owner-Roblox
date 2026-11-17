@@ -503,14 +503,14 @@ local function reconstruirMenu()
         return l
     end
 
-    local subv2.2 = crearSub(esMovil and "v2.2" or t("version"), ORO, 1, "version")
-    local subv2.2Grad = Instance.new("UIGradient")
-    subv2.2Grad.Color = ColorSequence.new({
+    local subVersion = crearSub(esMovil and "v2.2" or t("version"), ORO, 1, "version")
+    local subVersionGrad = Instance.new("UIGradient")
+    subVersionGrad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, ORO_CLARO),
         ColorSequenceKeypoint.new(0.5, ORO),
         ColorSequenceKeypoint.new(1, ORO_OSCURO)
     })
-    subv2.2Grad.Parent = subv2.2
+    subVersionGrad.Parent = subVersion
 
     crearSub("·", TEXTO_GRIS, 2)
     crearSub(t("autor"), AZUL_CIELO, 3, "autor")
@@ -518,7 +518,7 @@ local function reconstruirMenu()
     crearSub(esMovil and t("mobile") or t("pc"), VERDE_CLARO, 5, "plataforma")
 
     girar(titleGrad, 3, 0)
-    girar(subv2.2Grad, 3, 0)
+    girar(subVersionGrad, 3, 0)
     girar(bordeGrad, 6, 45)
 
     local minBtn = Instance.new("TextButton")
@@ -1052,7 +1052,7 @@ local function reconstruirMenu()
         local copiado = false
         if type(setclipboard) == "function" then
             pcall(function() setclipboard(DISCORD_URL) copiado = true end)
-        else
+        elseif type(toclipboard) == "function" then
             pcall(function() toclipboard(DISCORD_URL) copiado = true end)
         end
 
@@ -1422,9 +1422,13 @@ local function reconstruirMenu()
 
     conectar(copiarModal.MouseButton1Click, function()
         local exito = pcall(function()
-            if setclipboard then setclipboard(JUEGOS[1].link)
-            elseif toclipboard then toclipboard(JUEGOS[1].link)
-            else error("No clipboard API") end
+            if type(setclipboard) == "function" then
+                setclipboard(JUEGOS[1].link)
+            elseif type(toclipboard) == "function" then
+                toclipboard(JUEGOS[1].link)
+            else
+                error("No clipboard API")
+            end
         end)
         if exito then
             modalFeedback.Text = t("linkJuegoCopiado")
@@ -1705,7 +1709,9 @@ local function reconstruirMenu()
         intentoEnCurso = false
     end
 
-    local function intentarReclamar(forzar)
+    local intentarReclamar
+
+    intentarReclamar = function(forzar)
         if not forzar and tick() - ultimoIntento < COOLDOWN_INTENTO then return end
         if intentoEnCurso then return end
         ultimoIntento = tick()
@@ -1752,23 +1758,6 @@ local function reconstruirMenu()
         end)
     end
 
-    local function actualizarToggle(activo)
-        if activo then
-            tw(toggleTrack, TWEEN_TOGGLE, {BackgroundColor3 = ORO})
-            pcall(function() toggleStroke.Color = ORO end)
-            tw(toggleKnob, TWEEN_TOGGLE, {
-                Position = UDim2.new(1, -23, 0.5, -10),
-                BackgroundColor3 = NEGRO
-            })
-        else
-            tw(toggleTrack, TWEEN_TOGGLE, {BackgroundColor3 = Color3.fromRGB(50, 50, 60)})
-            pcall(function() toggleStroke.Color = Color3.fromRGB(80, 80, 90) end)
-            tw(toggleKnob, TWEEN_TOGGLE, {
-                Position = UDim2.new(0, 3, 0.5, -10),
-                BackgroundColor3 = Color3.fromRGB(200, 200, 210)
-            })
-        end
-    end
     local function actualizarToggle(activo)
         if activo then
             tw(toggleTrack, TWEEN_TOGGLE, {BackgroundColor3 = ORO})
@@ -1943,7 +1932,7 @@ local function reconstruirMenu()
                 idiomaDropdown.Visible = false
                 return
             end
-            cambiarIdioma(codigo)
+            task.spawn(cambiarIdioma, codigo)
         end)
     end
 
@@ -2041,11 +2030,11 @@ local function reconstruirMenu()
     end
 
     nextBtn.MouseButton1Click:Connect(function()
-        if paginaActual < 2 then irAPagina(paginaActual + 1) end
+        if paginaActual < 2 then task.spawn(irAPagina, paginaActual + 1) end
     end)
 
     prevBtn.MouseButton1Click:Connect(function()
-        if paginaActual > 1 then irAPagina(paginaActual - 1) end
+        if paginaActual > 1 then task.spawn(irAPagina, paginaActual - 1) end
     end)
 
     local function iniciarShine()
@@ -2301,7 +2290,7 @@ local function reconstruirMenu()
         animando = false
     end
 
-    minBtn.MouseButton1Click:Connect(minimizar)
+    minBtn.MouseButton1Click:Connect(function() task.spawn(minimizar) end)
 
     local cDrag = false
     local cStart = nil
@@ -2448,7 +2437,7 @@ local function reconstruirMenu()
 
     closeBtn.MouseButton1Click:Connect(function()
         if confirmando then
-            cerrarConfirm()
+            task.spawn(cerrarConfirm)
             return
         end
         confirmando = true
@@ -2490,7 +2479,7 @@ local function reconstruirMenu()
     end)
 
     confirmNo.MouseButton1Click:Connect(function()
-        cerrarConfirm()
+        task.spawn(cerrarConfirm)
     end)
 
     gui.Destroying:Connect(function()
@@ -2625,6 +2614,9 @@ local function reconstruirMenu()
     tw(mainEscala, TWEEN_ENTRADA, {Scale = escalaBase})
 end
 
-reconstruirMenu()
+local okMenu, errMenu = pcall(reconstruirMenu)
+if not okMenu then
+    warn("[Speed Click v2.2] Error al crear el menu: " .. tostring(errMenu))
+end
 
 print("[Speed Click for Owner v2.2] Listo · " .. (esMovil and "Mobile" or "PC") .. " · Idioma: " .. idiomaActual)
