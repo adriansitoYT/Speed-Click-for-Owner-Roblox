@@ -1,6 +1,6 @@
 -- FIRST HUB, DISCORD: https://discord.gg/4gwAeR9uUz
 
-print("[Speed Click for Owner v2] Cargando...")
+print("[Speed Click for Owner v2.2] Cargando...")
 task.wait(0.5)
 
 local Players = game:GetService("Players")
@@ -12,7 +12,7 @@ local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
 local pg = player:WaitForChild("PlayerGui", 10)
 
-local viejoGui = pg:FindFirstChild("SpeedClickOwnerV2")
+local viejoGui = pg:FindFirstChild("SpeedClickOwnerv2.2")
 if viejoGui then viejoGui:Destroy() end
 
 local esMovil = UIS.TouchEnabled and not UIS.KeyboardEnabled
@@ -32,6 +32,8 @@ local VERDE_CLARO = Color3.fromRGB(120, 220, 140)
 local AMBAR       = Color3.fromRGB(240, 180, 120)
 local MORADO      = Color3.fromRGB(160, 80, 200)
 local CELESTE     = Color3.fromRGB(60, 140, 200)
+local DISCORD_AZUL = Color3.fromRGB(88, 101, 242)
+local DISCORD_CLARO = Color3.fromRGB(150, 160, 255)
 
 local TWEEN_HOVER   = TweenInfo.new(0.12, Enum.EasingStyle.Quad)
 local TWEEN_COLOR   = TweenInfo.new(0.2, Enum.EasingStyle.Quad)
@@ -45,10 +47,20 @@ if player.LocaleId:lower():sub(1, 2) == "en" then
     idiomaActual = "en"
 end
 
+local DISCORD_URL = "https://discord.gg/4gwAeR9uUz"
+
+local JUEGOS = {
+    {
+        nombre = "+1 Flying Car Obby",
+        siglas = "FC",
+        link = "https://roscripts.io/s/1-flying-car-obby-first-hub-beta",
+    },
+}
+
 local textos = {
     es = {
         titulo = "SPEED CLICK FOR OWNER",
-        version = "v2 PREMIUM",
+        version = "v2.2 PREMIUM",
         autor = "by First Hub",
         pc = "PC",
         mobile = "Mobile",
@@ -80,10 +92,23 @@ local textos = {
         autoTPApagado = "●  TP OFF",
         autoTPSinVerificar = "●  Sin verificar",
         autoTPTimerLabel = "TIEMPO",
+        discord = "💬  UNIRSE AL DISCORD",
+        discordCopiado = "Discord copiado: discord.gg/4gwAeR9uUz",
+        masJuegos = "¡Más Juegos!",
+        nuevo = "NUEVO",
+        volver = "Volver",
+        juegosTitulo = "Más Juegos",
+        play = "PLAY",
+        sinKey = "NO KEY",
+        modalTitulo = "Antes de jugar",
+        modalMensaje = "Copia el link y pégalo en el navegador para ir a la página oficial de RoScript.",
+        copiarLink = "Copiar Link",
+        linkJuegoCopiado = "¡Link copiado! Pégalo en el navegador",
+        copiaFalla = "No se pudo copiar, el link está en la consola",
     },
     en = {
         titulo = "SPEED CLICK FOR OWNER",
-        version = "v2 PREMIUM",
+        version = "v2.2 PREMIUM",
         autor = "by First Hub",
         pc = "PC",
         mobile = "Mobile",
@@ -115,6 +140,19 @@ local textos = {
         autoTPApagado = "●  TP OFF",
         autoTPSinVerificar = "●  Unverified",
         autoTPTimerLabel = "TIME",
+        discord = "💬  JOIN THE DISCORD",
+        discordCopiado = "Discord copied: discord.gg/4gwAeR9uUz",
+        masJuegos = "More Games!",
+        nuevo = "NEW",
+        volver = "Back",
+        juegosTitulo = "More Games",
+        play = "PLAY",
+        sinKey = "NO KEY",
+        modalTitulo = "Before you play",
+        modalMensaje = "Copy the link and paste it in the browser to go to the official RoScript page.",
+        copiarLink = "Copy Link",
+        linkJuegoCopiado = "Link copied! Paste it in the browser",
+        copiaFalla = "Could not copy, the link is in the console",
     },
 }
 
@@ -211,6 +249,18 @@ local function formatearTiempo(segs)
     else
         return string.format("%ds", s)
     end
+end
+
+local function intentarAbrirBrowser(url)
+    if type(openbrowser) == "function" then
+        pcall(openbrowser, url)
+        return true
+    end
+    if type(OpenBrowserWindow) == "function" then
+        pcall(OpenBrowserWindow, url)
+        return true
+    end
+    return false
 end
 
 local function detectar()
@@ -313,7 +363,7 @@ local function reconstruirMenu()
     local escalaBase = calcularEscala()
 
     local gui = Instance.new("ScreenGui")
-    gui.Name = "SpeedClickOwnerV2"
+    gui.Name = "SpeedClickOwnerv2.2"
     gui.ResetOnSpawn = false
     gui.DisplayOrder = 999
     gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -453,14 +503,14 @@ local function reconstruirMenu()
         return l
     end
 
-    local subV2 = crearSub(esMovil and "v2" or t("version"), ORO, 1, "version")
-    local subV2Grad = Instance.new("UIGradient")
-    subV2Grad.Color = ColorSequence.new({
+    local subv2.2 = crearSub(esMovil and "v2.2" or t("version"), ORO, 1, "version")
+    local subv2.2Grad = Instance.new("UIGradient")
+    subv2.2Grad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, ORO_CLARO),
         ColorSequenceKeypoint.new(0.5, ORO),
         ColorSequenceKeypoint.new(1, ORO_OSCURO)
     })
-    subV2Grad.Parent = subV2
+    subv2.2Grad.Parent = subv2.2
 
     crearSub("·", TEXTO_GRIS, 2)
     crearSub(t("autor"), AZUL_CIELO, 3, "autor")
@@ -468,7 +518,7 @@ local function reconstruirMenu()
     crearSub(esMovil and t("mobile") or t("pc"), VERDE_CLARO, 5, "plataforma")
 
     girar(titleGrad, 3, 0)
-    girar(subV2Grad, 3, 0)
+    girar(subv2.2Grad, 3, 0)
     girar(bordeGrad, 6, 45)
 
     local minBtn = Instance.new("TextButton")
@@ -924,6 +974,220 @@ local function reconstruirMenu()
     toggleBtn.ZIndex = 6
     toggleBtn.Parent = toggleTrack
 
+    local discordBtn = Instance.new("TextButton")
+    discordBtn.Size = UDim2.new(1, -28, 0, 44)
+    discordBtn.Position = UDim2.new(0, 14, 0, 108)
+    discordBtn.BackgroundColor3 = DISCORD_AZUL
+    discordBtn.Text = ""
+    discordBtn.TextColor3 = TEXTO
+    discordBtn.Font = Enum.Font.GothamMedium
+    discordBtn.TextSize = 13
+    discordBtn.ZIndex = 3
+    discordBtn.AutoButtonColor = false
+    discordBtn.Parent = page2
+    Instance.new("UICorner", discordBtn).CornerRadius = UDim.new(0, 12)
+
+    local discordGrad = Instance.new("UIGradient")
+    discordGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(114, 137, 218)),
+        ColorSequenceKeypoint.new(1, DISCORD_AZUL)
+    })
+    discordGrad.Rotation = 90
+    discordGrad.Parent = discordBtn
+
+    local discordBorde = aplicarStroke(discordBtn, DISCORD_CLARO, 2, 0.5)
+    refs.discordBtn = discordBtn
+
+    local discordIcon = Instance.new("Frame")
+    discordIcon.Size = UDim2.new(0, 22, 0, 22)
+    discordIcon.Position = UDim2.new(0, 8, 0.5, -11)
+    discordIcon.BackgroundColor3 = Color3.new(1, 1, 1)
+    discordIcon.BackgroundTransparency = 0.15
+    discordIcon.BorderSizePixel = 0
+    discordIcon.ZIndex = 4
+    discordIcon.Parent = discordBtn
+    Instance.new("UICorner", discordIcon).CornerRadius = UDim.new(0, 6)
+
+    local discordIconText = Instance.new("TextLabel")
+    discordIconText.Size = UDim2.new(1, 0, 1, 0)
+    discordIconText.BackgroundTransparency = 1
+    discordIconText.Text = "D"
+    discordIconText.TextColor3 = DISCORD_AZUL
+    discordIconText.Font = Enum.Font.GothamBold
+    discordIconText.TextSize = 14
+    discordIconText.ZIndex = 5
+    discordIconText.Parent = discordIcon
+
+    local discordLabel = Instance.new("TextLabel")
+    discordLabel.Size = UDim2.new(1, -40, 1, 0)
+    discordLabel.Position = UDim2.new(0, 36, 0, 0)
+    discordLabel.BackgroundTransparency = 1
+    discordLabel.Text = t("discord")
+    discordLabel.TextColor3 = TEXTO
+    discordLabel.Font = Enum.Font.GothamBold
+    discordLabel.TextSize = 13
+    discordLabel.TextXAlignment = Enum.TextXAlignment.Left
+    discordLabel.ZIndex = 4
+    discordLabel.Parent = discordBtn
+
+    local discordCopiado = Instance.new("TextLabel")
+    discordCopiado.Size = UDim2.new(1, -40, 1, 0)
+    discordCopiado.Position = UDim2.new(0, 36, 0, 0)
+    discordCopiado.BackgroundTransparency = 1
+    discordCopiado.Text = t("discordCopiado")
+    discordCopiado.TextColor3 = VERDE_CLARO
+    discordCopiado.Font = Enum.Font.GothamBold
+    discordCopiado.TextSize = 12
+    discordCopiado.TextXAlignment = Enum.TextXAlignment.Left
+    discordCopiado.TextTransparency = 1
+    discordCopiado.ZIndex = 4
+    discordCopiado.Parent = discordBtn
+
+    local discordCopiandoToken = 0
+
+    discordBtn.MouseButton1Click:Connect(function()
+        discordCopiandoToken += 1
+        local miToken = discordCopiandoToken
+
+        local copiado = false
+        if type(setclipboard) == "function" then
+            pcall(function() setclipboard(DISCORD_URL) copiado = true end)
+        else
+            pcall(function() toclipboard(DISCORD_URL) copiado = true end)
+        end
+
+        intentarAbrirBrowser(DISCORD_URL)
+
+        if copiado then
+            TweenService:Create(discordLabel, TWEEN_COLOR, {TextTransparency = 1}):Play()
+            TweenService:Create(discordCopiado, TWEEN_COLOR, {TextTransparency = 0}):Play()
+            TweenService:Create(discordBtn, TWEEN_COLOR, {BackgroundColor3 = VERDE}):Play()
+
+            task.delay(2, function()
+                if miToken ~= discordCopiandoToken then return end
+                TweenService:Create(discordLabel, TWEEN_COLOR, {TextTransparency = 0}):Play()
+                TweenService:Create(discordCopiado, TWEEN_COLOR, {TextTransparency = 1}):Play()
+                TweenService:Create(discordBtn, TWEEN_COLOR, {BackgroundColor3 = DISCORD_AZUL}):Play()
+            end)
+        else
+            discordLabel.Text = DISCORD_URL
+            discordLabel.TextSize = 9
+            TweenService:Create(discordBtn, TWEEN_COLOR, {BackgroundColor3 = ROJO}):Play()
+            task.delay(4, function()
+                if miToken ~= discordCopiandoToken then return end
+                discordLabel.Text = t("discord")
+                discordLabel.TextSize = 13
+                TweenService:Create(discordBtn, TWEEN_COLOR, {BackgroundColor3 = DISCORD_AZUL}):Play()
+            end)
+        end
+    end)
+
+    local masEnvoltorio = Instance.new("Frame")
+    masEnvoltorio.Size = UDim2.new(1, -28, 0, 52)
+    masEnvoltorio.Position = UDim2.new(0, 14, 0, 160)
+    masEnvoltorio.BackgroundTransparency = 1
+    masEnvoltorio.ZIndex = 3
+    masEnvoltorio.Parent = page2
+
+    local masBtn = Instance.new("TextButton")
+    masBtn.Size = UDim2.new(1, -6, 0, 44)
+    masBtn.Position = UDim2.new(0.5, 0, 0.5, 0)
+    masBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+    masBtn.BackgroundColor3 = Color3.new(1, 1, 1)
+    masBtn.Text = ""
+    masBtn.AutoButtonColor = false
+    masBtn.BorderSizePixel = 0
+    masBtn.ClipsDescendants = true
+    masBtn.ZIndex = 4
+    masBtn.Parent = masEnvoltorio
+    Instance.new("UICorner", masBtn).CornerRadius = UDim.new(0, 12)
+
+    local masGrad = Instance.new("UIGradient")
+    masGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, ORO),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 140, 40)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 90, 140))
+    })
+    masGrad.Parent = masBtn
+
+    aplicarStroke(masBtn, ORO_CLARO, 2, 0.1)
+
+    local masEscala = Instance.new("UIScale")
+    masEscala.Scale = 1
+    masEscala.Parent = masBtn
+
+    local masBrillo = Instance.new("Frame")
+    masBrillo.Size = UDim2.new(0.3, 0, 1.6, 0)
+    masBrillo.Position = UDim2.new(-0.5, 0, -0.3, 0)
+    masBrillo.BackgroundColor3 = Color3.new(1, 1, 1)
+    masBrillo.BorderSizePixel = 0
+    masBrillo.Rotation = 20
+    masBrillo.ZIndex = 5
+    masBrillo.Parent = masBtn
+
+    local brilloGrad = Instance.new("UIGradient")
+    brilloGrad.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1),
+        NumberSequenceKeypoint.new(0.5, 0.45),
+        NumberSequenceKeypoint.new(1, 1)
+    })
+    brilloGrad.Parent = masBrillo
+
+    local masTexto = Instance.new("TextLabel")
+    masTexto.Size = UDim2.new(1, 0, 1, 0)
+    masTexto.BackgroundTransparency = 1
+    masTexto.Text = t("masJuegos")
+    masTexto.TextColor3 = NEGRO
+    masTexto.Font = Enum.Font.GothamMedium
+    masTexto.TextSize = 15
+    masTexto.ZIndex = 6
+    masTexto.Parent = masBtn
+
+    local nuevoTag = Instance.new("Frame")
+    nuevoTag.Size = UDim2.new(0, 44, 0, 15)
+    nuevoTag.Position = UDim2.new(1, -50, 0, 4)
+    nuevoTag.BackgroundColor3 = ROJO
+    nuevoTag.BorderSizePixel = 0
+    nuevoTag.ZIndex = 6
+    nuevoTag.Parent = masBtn
+    Instance.new("UICorner", nuevoTag).CornerRadius = UDim.new(0, 8)
+
+    local nuevoTexto = Instance.new("TextLabel")
+    nuevoTexto.Size = UDim2.new(1, 0, 1, 0)
+    nuevoTexto.BackgroundTransparency = 1
+    nuevoTexto.Text = t("nuevo")
+    nuevoTexto.TextColor3 = TEXTO
+    nuevoTexto.Font = Enum.Font.GothamMedium
+    nuevoTexto.TextSize = 9
+    nuevoTexto.ZIndex = 7
+    nuevoTexto.Parent = nuevoTag
+
+    task.spawn(function()
+        while gui.Parent do
+            masGrad.Rotation = 0
+            local tw2 = TweenService:Create(masGrad, TweenInfo.new(4, Enum.EasingStyle.Linear), {Rotation = 360})
+            tw2:Play()
+            tw2.Completed:Wait()
+        end
+    end)
+
+    TweenService:Create(masEscala, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Scale = 1.04}):Play()
+    TweenService:Create(nuevoTag, TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {BackgroundTransparency = 0.35}):Play()
+
+    task.spawn(function()
+        while gui.Parent do
+            if masBtn.Parent and masBtn.Parent.Parent and masBtn.Parent.Parent.Visible then
+                masBrillo.Position = UDim2.new(-0.5, 0, -0.3, 0)
+                TweenService:Create(masBrillo, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+                    Position = UDim2.new(1.2, 0, -0.3, 0),
+                }):Play()
+                task.wait(2.4)
+            else
+                task.wait(0.5)
+            end
+        end
+    end)
+
     local idiomaBtn = Instance.new("TextButton")
     idiomaBtn.Size = UDim2.new(1, -28, 0, 44)
     idiomaBtn.Position = UDim2.new(0, 14, 0, 296)
@@ -960,6 +1224,362 @@ local function reconstruirMenu()
     idiomaLayout.SortOrder = Enum.SortOrder.LayoutOrder
     idiomaLayout.Padding = UDim.new(0, 4)
     idiomaLayout.Parent = idiomaOpciones
+
+    local panelAbierto = false
+    local panelOcupado = false
+
+    local panelJuegos = Instance.new("Frame")
+    panelJuegos.Name = "PanelJuegos"
+    panelJuegos.Size = UDim2.new(1, 0, 1, -64)
+    panelJuegos.Position = UDim2.new(1, 0, 0, 64)
+    panelJuegos.BackgroundColor3 = NEGRO_2
+    panelJuegos.BorderSizePixel = 0
+    panelJuegos.Visible = false
+    panelJuegos.ZIndex = 40
+    panelJuegos.Parent = main
+
+    local volverBtn = Instance.new("TextButton")
+    volverBtn.Size = UDim2.new(0, 84, 0, 32)
+    volverBtn.Position = UDim2.new(0, 14, 0, 12)
+    volverBtn.BackgroundColor3 = NEGRO_3
+    volverBtn.Text = t("volver")
+    volverBtn.TextColor3 = ORO
+    volverBtn.Font = Enum.Font.GothamMedium
+    volverBtn.TextSize = 12
+    volverBtn.AutoButtonColor = false
+    volverBtn.BorderSizePixel = 0
+    volverBtn.ZIndex = 41
+    volverBtn.Parent = panelJuegos
+    Instance.new("UICorner", volverBtn).CornerRadius = UDim.new(0, 10)
+    aplicarStroke(volverBtn, ORO, 1.5, 0.4)
+
+    local juegosTitulo = Instance.new("TextLabel")
+    juegosTitulo.Size = UDim2.new(1, -122, 0, 32)
+    juegosTitulo.Position = UDim2.new(0, 108, 0, 12)
+    juegosTitulo.BackgroundTransparency = 1
+    juegosTitulo.Text = t("juegosTitulo")
+    juegosTitulo.TextColor3 = ORO
+    juegosTitulo.Font = Enum.Font.GothamMedium
+    juegosTitulo.TextSize = 16
+    juegosTitulo.TextXAlignment = Enum.TextXAlignment.Left
+    juegosTitulo.ZIndex = 41
+    juegosTitulo.Parent = panelJuegos
+
+    local listaJuegos = Instance.new("ScrollingFrame")
+    listaJuegos.Position = UDim2.new(0, 0, 0, 54)
+    listaJuegos.Size = UDim2.new(1, 0, 1, -54)
+    listaJuegos.BackgroundTransparency = 1
+    listaJuegos.BorderSizePixel = 0
+    listaJuegos.CanvasSize = UDim2.new(0, 0, 0, 0)
+    listaJuegos.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    listaJuegos.ScrollBarThickness = 3
+    listaJuegos.ScrollBarImageColor3 = ORO
+    listaJuegos.ScrollingDirection = Enum.ScrollingDirection.Y
+    listaJuegos.ZIndex = 41
+    listaJuegos.Parent = panelJuegos
+
+    local listaLayout = Instance.new("UIListLayout")
+    listaLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    listaLayout.Padding = UDim.new(0, 10)
+    listaLayout.Parent = listaJuegos
+
+    local listaPadding = Instance.new("UIPadding")
+    listaPadding.PaddingTop = UDim.new(0, 4)
+    listaPadding.PaddingBottom = UDim.new(0, 14)
+    listaPadding.PaddingLeft = UDim.new(0, 14)
+    listaPadding.PaddingRight = UDim.new(0, 14)
+    listaPadding.Parent = listaJuegos
+
+    local modalFondo = Instance.new("TextButton")
+    modalFondo.Size = UDim2.new(1, 0, 1, 0)
+    modalFondo.BackgroundColor3 = Color3.new(0, 0, 0)
+    modalFondo.BackgroundTransparency = 1
+    modalFondo.Text = ""
+    modalFondo.AutoButtonColor = false
+    modalFondo.Visible = false
+    modalFondo.ZIndex = 50
+    modalFondo.Parent = gui
+
+    local modal = Instance.new("Frame")
+    modal.AnchorPoint = Vector2.new(0.5, 0.5)
+    modal.Position = UDim2.new(0.5, 0, 0.5, 0)
+    modal.Size = UDim2.new(0, 300, 0, 240)
+    modal.BackgroundColor3 = NEGRO_2
+    modal.BorderSizePixel = 0
+    modal.ZIndex = 51
+    modal.Parent = modalFondo
+    Instance.new("UICorner", modal).CornerRadius = UDim.new(0, 14)
+
+    local modalBorde = aplicarStroke(modal, ORO, 1.5, 0.35)
+    local modalBordeGrad = Instance.new("UIGradient")
+    modalBordeGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, ORO_CLARO),
+        ColorSequenceKeypoint.new(0.5, ORO),
+        ColorSequenceKeypoint.new(1, ORO_OSCURO)
+    })
+    modalBordeGrad.Rotation = 45
+    modalBordeGrad.Parent = modalBorde
+
+    local modalEscala = Instance.new("UIScale")
+    modalEscala.Scale = 0.01
+    modalEscala.Parent = modal
+
+    local modalTitulo = Instance.new("TextLabel")
+    modalTitulo.Size = UDim2.new(1, -60, 0, 22)
+    modalTitulo.Position = UDim2.new(0, 16, 0, 14)
+    modalTitulo.BackgroundTransparency = 1
+    modalTitulo.Text = t("modalTitulo")
+    modalTitulo.TextColor3 = ORO
+    modalTitulo.Font = Enum.Font.GothamMedium
+    modalTitulo.TextSize = 17
+    modalTitulo.TextXAlignment = Enum.TextXAlignment.Left
+    modalTitulo.ZIndex = 52
+    modalTitulo.Parent = modal
+
+    local modalCerrar = Instance.new("TextButton")
+    modalCerrar.Size = UDim2.new(0, 28, 0, 28)
+    modalCerrar.Position = UDim2.new(1, -40, 0, 12)
+    modalCerrar.BackgroundColor3 = NEGRO_3
+    modalCerrar.Text = "X"
+    modalCerrar.TextColor3 = ORO
+    modalCerrar.Font = Enum.Font.GothamMedium
+    modalCerrar.TextSize = 13
+    modalCerrar.AutoButtonColor = false
+    modalCerrar.BorderSizePixel = 0
+    modalCerrar.ZIndex = 52
+    modalCerrar.Parent = modal
+    Instance.new("UICorner", modalCerrar).CornerRadius = UDim.new(0, 8)
+
+    local modalMensaje = Instance.new("TextLabel")
+    modalMensaje.Size = UDim2.new(1, -32, 0, 90)
+    modalMensaje.Position = UDim2.new(0, 16, 0, 48)
+    modalMensaje.BackgroundTransparency = 1
+    modalMensaje.Text = t("modalMensaje")
+    modalMensaje.TextColor3 = TEXTO
+    modalMensaje.Font = Enum.Font.Gotham
+    modalMensaje.TextSize = 13
+    modalMensaje.TextWrapped = true
+    modalMensaje.TextXAlignment = Enum.TextXAlignment.Left
+    modalMensaje.TextYAlignment = Enum.TextYAlignment.Top
+    modalMensaje.ZIndex = 52
+    modalMensaje.Parent = modal
+
+    local copiarModal = Instance.new("TextButton")
+    copiarModal.Size = UDim2.new(1, -32, 0, 44)
+    copiarModal.Position = UDim2.new(0, 16, 0, 148)
+    copiarModal.BackgroundColor3 = ORO
+    copiarModal.Text = t("copiarLink")
+    copiarModal.TextColor3 = NEGRO
+    copiarModal.Font = Enum.Font.GothamMedium
+    copiarModal.TextSize = 14
+    copiarModal.AutoButtonColor = false
+    copiarModal.BorderSizePixel = 0
+    copiarModal.ZIndex = 52
+    copiarModal.Parent = modal
+    Instance.new("UICorner", copiarModal).CornerRadius = UDim.new(0, 10)
+
+    local modalFeedback = Instance.new("TextLabel")
+    modalFeedback.Size = UDim2.new(1, -32, 0, 16)
+    modalFeedback.Position = UDim2.new(0, 16, 0, 200)
+    modalFeedback.BackgroundTransparency = 1
+    modalFeedback.Text = ""
+    modalFeedback.TextColor3 = VERDE_CLARO
+    modalFeedback.Font = Enum.Font.GothamMedium
+    modalFeedback.TextSize = 11
+    modalFeedback.TextWrapped = true
+    modalFeedback.ZIndex = 52
+    modalFeedback.Parent = modal
+
+    local modalToken = 0
+
+    local function abrirModal()
+        modalToken += 1
+        modalFeedback.Text = ""
+        modalFondo.BackgroundTransparency = 1
+        modalFondo.Visible = true
+        modalEscala.Scale = 0.01
+        TweenService:Create(modalFondo, TWEEN_COLOR, {BackgroundTransparency = 0.45}):Play()
+        TweenService:Create(modalEscala, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Scale = escalaBase
+        }):Play()
+    end
+
+    local function cerrarModal()
+        modalToken += 1
+        local miToken = modalToken
+        TweenService:Create(modalFondo, TWEEN_COLOR, {BackgroundTransparency = 1}):Play()
+        TweenService:Create(modalEscala, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Scale = 0.01
+        }):Play()
+        task.delay(0.17, function()
+            if modalToken == miToken then
+                modalFondo.Visible = false
+            end
+        end)
+    end
+
+    conectar(modalCerrar.MouseButton1Click, cerrarModal)
+
+    conectar(copiarModal.MouseButton1Click, function()
+        local exito = pcall(function()
+            if setclipboard then setclipboard(JUEGOS[1].link)
+            elseif toclipboard then toclipboard(JUEGOS[1].link)
+            else error("No clipboard API") end
+        end)
+        if exito then
+            modalFeedback.Text = t("linkJuegoCopiado")
+            modalFeedback.TextColor3 = VERDE_CLARO
+        else
+            modalFeedback.Text = t("copiaFalla")
+            modalFeedback.TextColor3 = AMBAR
+            print("[Speed Click] Link: " .. JUEGOS[1].link)
+        end
+    end)
+
+    local function abrirPanel()
+        if panelAbierto or panelOcupado then return end
+        panelOcupado = true
+        panelAbierto = true
+        panelJuegos.Position = UDim2.new(1, 0, 0, 64)
+        panelJuegos.Visible = true
+        local tw2 = TweenService:Create(panelJuegos, TWEEN_SLIDE, {Position = UDim2.new(0, 0, 0, 64)})
+        tw2:Play()
+        tw2.Completed:Wait()
+        panelOcupado = false
+    end
+
+    local function cerrarPanel()
+        if not panelAbierto or panelOcupado then return end
+        panelOcupado = true
+        local tw2 = TweenService:Create(panelJuegos, TWEEN_SLIDE, {Position = UDim2.new(1, 0, 0, 64)})
+        tw2:Play()
+        tw2.Completed:Wait()
+        panelJuegos.Visible = false
+        panelAbierto = false
+        panelOcupado = false
+    end
+
+    conectar(masBtn.MouseButton1Click, function() task.spawn(abrirPanel) end)
+    conectar(volverBtn.MouseButton1Click, function() task.spawn(cerrarPanel) end)
+
+    local function crearTarjetaJuego(juego, orden)
+        local tarjeta = Instance.new("Frame")
+        tarjeta.Size = UDim2.new(1, 0, 0, 96)
+        tarjeta.BackgroundColor3 = NEGRO_3
+        tarjeta.BorderSizePixel = 0
+        tarjeta.LayoutOrder = orden
+        tarjeta.ZIndex = 42
+        tarjeta.Parent = listaJuegos
+        Instance.new("UICorner", tarjeta).CornerRadius = UDim.new(0, 12)
+        aplicarStroke(tarjeta, ORO, 1, 0.7)
+
+        local marco = Instance.new("Frame")
+        marco.Size = UDim2.new(0, 72, 0, 72)
+        marco.Position = UDim2.new(0, 10, 0.5, -36)
+        marco.BackgroundColor3 = ORO
+        marco.BorderSizePixel = 0
+        marco.ClipsDescendants = true
+        marco.ZIndex = 43
+        marco.Parent = tarjeta
+        Instance.new("UICorner", marco).CornerRadius = UDim.new(0, 12)
+
+        local marcoGrad = Instance.new("UIGradient")
+        marcoGrad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, ORO_CLARO),
+            ColorSequenceKeypoint.new(0.5, ORO),
+            ColorSequenceKeypoint.new(1, ORO_OSCURO),
+        })
+        marcoGrad.Rotation = 45
+        marcoGrad.Parent = marco
+
+        aplicarStroke(marco, ORO_CLARO, 3, 0.2)
+        aplicarStroke(marco, NEGRO, 1, 0.6)
+
+        local textoSC = Instance.new("TextLabel")
+        textoSC.Size = UDim2.new(1, 0, 1, 0)
+        textoSC.BackgroundTransparency = 1
+        textoSC.Text = juego.siglas
+        textoSC.TextColor3 = NEGRO
+        textoSC.Font = Enum.Font.GothamBold
+        textoSC.TextSize = 24
+        textoSC.ZIndex = 44
+        textoSC.Parent = marco
+
+        local scGrad = Instance.new("UIGradient")
+        scGrad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 40, 10)),
+            ColorSequenceKeypoint.new(1, NEGRO),
+        })
+        scGrad.Rotation = 90
+        scGrad.Parent = textoSC
+
+        local nombreLabel = Instance.new("TextLabel")
+        nombreLabel.Size = UDim2.new(1, -176, 0, 34)
+        nombreLabel.Position = UDim2.new(0, 92, 0, 14)
+        nombreLabel.BackgroundTransparency = 1
+        nombreLabel.Text = juego.nombre
+        nombreLabel.TextColor3 = TEXTO
+        nombreLabel.Font = Enum.Font.GothamMedium
+        nombreLabel.TextSize = 13
+        nombreLabel.TextWrapped = true
+        nombreLabel.TextXAlignment = Enum.TextXAlignment.Left
+        nombreLabel.TextYAlignment = Enum.TextYAlignment.Top
+        nombreLabel.ZIndex = 43
+        nombreLabel.Parent = tarjeta
+
+        local insigniaKey = Instance.new("Frame")
+        insigniaKey.Size = UDim2.new(0, 64, 0, 20)
+        insigniaKey.Position = UDim2.new(0, 92, 0, 56)
+        insigniaKey.BackgroundColor3 = VERDE
+        insigniaKey.BorderSizePixel = 0
+        insigniaKey.ZIndex = 43
+        insigniaKey.Parent = tarjeta
+        Instance.new("UICorner", insigniaKey).CornerRadius = UDim.new(0, 10)
+        aplicarStroke(insigniaKey, VERDE_CLARO, 1, 0.3)
+
+        local keyTexto = Instance.new("TextLabel")
+        keyTexto.Size = UDim2.new(1, 0, 1, 0)
+        keyTexto.BackgroundTransparency = 1
+        keyTexto.Text = t("sinKey")
+        keyTexto.TextColor3 = TEXTO
+        keyTexto.Font = Enum.Font.GothamMedium
+        keyTexto.TextSize = 10
+        keyTexto.ZIndex = 44
+        keyTexto.Parent = insigniaKey
+
+        local playBtn = Instance.new("TextButton")
+        playBtn.Size = UDim2.new(0, 66, 0, 36)
+        playBtn.Position = UDim2.new(1, -78, 0.5, -18)
+        playBtn.BackgroundColor3 = VERDE
+        playBtn.Text = t("play")
+        playBtn.TextColor3 = TEXTO
+        playBtn.Font = Enum.Font.GothamMedium
+        playBtn.TextSize = 13
+        playBtn.AutoButtonColor = false
+        playBtn.BorderSizePixel = 0
+        playBtn.ZIndex = 44
+        playBtn.Parent = tarjeta
+        Instance.new("UICorner", playBtn).CornerRadius = UDim.new(0, 10)
+        aplicarStroke(playBtn, VERDE_CLARO, 1.5, 0.35)
+
+        conectar(playBtn.MouseEnter, function()
+            TweenService:Create(playBtn, TWEEN_COLOR, {BackgroundColor3 = Color3.fromRGB(60, 190, 85)}):Play()
+        end)
+        conectar(playBtn.MouseLeave, function()
+            TweenService:Create(playBtn, TWEEN_COLOR, {BackgroundColor3 = VERDE}):Play()
+        end)
+        conectar(playBtn.MouseButton1Click, abrirModal)
+    end
+
+    for i, juego in ipairs(JUEGOS) do
+        crearTarjetaJuego(juego, i)
+    end
+
+    conectar(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"), function()
+        if modalFondo.Visible then
+            modalEscala.Scale = calcularEscala()
+        end
+    end)
 
     local MARGEN_RESET = 8
     local COOLDOWN_INTENTO = 8
@@ -1119,11 +1739,36 @@ local function reconstruirMenu()
                     end
                     intentoEnCurso = false
                     delayHandle = nil
+                    if autoActivo then
+                        task.delay(0.5, function()
+                            if autoActivo and not intentoEnCurso then
+                                ultimoIntento = 0
+                                pcall(intentarReclamar, true)
+                            end
+                        end)
+                    end
                 end)
             end)
         end)
     end
 
+    local function actualizarToggle(activo)
+        if activo then
+            tw(toggleTrack, TWEEN_TOGGLE, {BackgroundColor3 = ORO})
+            pcall(function() toggleStroke.Color = ORO end)
+            tw(toggleKnob, TWEEN_TOGGLE, {
+                Position = UDim2.new(1, -23, 0.5, -10),
+                BackgroundColor3 = NEGRO
+            })
+        else
+            tw(toggleTrack, TWEEN_TOGGLE, {BackgroundColor3 = Color3.fromRGB(50, 50, 60)})
+            pcall(function() toggleStroke.Color = Color3.fromRGB(80, 80, 90) end)
+            tw(toggleKnob, TWEEN_TOGGLE, {
+                Position = UDim2.new(0, 3, 0.5, -10),
+                BackgroundColor3 = Color3.fromRGB(200, 200, 210)
+            })
+        end
+    end
     local function actualizarToggle(activo)
         if activo then
             tw(toggleTrack, TWEEN_TOGGLE, {BackgroundColor3 = ORO})
@@ -1225,7 +1870,7 @@ local function reconstruirMenu()
             if autoActivo then detenerAuto() else iniciarAuto() end
         end)
         if not ok then
-            warn("[SC v2] AutoTP error: " .. tostring(err))
+            warn("[SC v2.2] AutoTP error: " .. tostring(err))
         end
     end)
 
@@ -1241,8 +1886,6 @@ local function reconstruirMenu()
                 timestampReclamo = os.time()
                 setEstado("RECLAMADO", ORO)
                 yaVerificado = true
-                cancelarIntento()
-                volverAPosicion()
                 if autoActivo then
                     setEstado("ESPERANDO", VERDE_CLARO)
                 end
@@ -1357,6 +2000,7 @@ local function reconstruirMenu()
     setupBoton(closeBtn)
     setupBoton(circle, true)
     setupBoton(idiomaBtn)
+    setupBoton(discordBtn)
 
     local function actualizarNav()
         tw(prevBtn, TWEEN_COLOR, {BackgroundTransparency = paginaActual == 1 and 0.65 or 0})
@@ -1557,12 +2201,12 @@ local function reconstruirMenu()
         local val = tonumber(waitBox.Text)
         if not val or val <= 0 then waitBox.Text = "0.005" end
         pcall(function()
-            player:SetAttribute("SCO_v2_wait", tonumber(waitBox.Text) or 0.005)
+            player:SetAttribute("SCO_v2.2_wait", tonumber(waitBox.Text) or 0.005)
         end)
     end)
 
     pcall(function()
-        local saved = player:GetAttribute("SCO_v2_wait")
+        local saved = player:GetAttribute("SCO_v2.2_wait")
         if saved then waitBox.Text = tostring(saved) end
     end)
 
@@ -1864,7 +2508,7 @@ local function reconstruirMenu()
         end
         cancelarCountdown()
         pcall(function()
-            player:SetAttribute("SCO_v2_wait", tonumber(waitBox.Text) or 0.005)
+            player:SetAttribute("SCO_v2.2_wait", tonumber(waitBox.Text) or 0.005)
         end)
         stopFly()
         for _, c in ipairs(conexiones) do
@@ -1886,7 +2530,7 @@ local function reconstruirMenu()
 
     aplicarIdioma = function()
         title.Text = t("titulo")
-        if refs.version then refs.version.Text = esMovil and "v2" or t("version") end
+        if refs.version then refs.version.Text = esMovil and "v2.2" or t("version") end
         if refs.autor then refs.autor.Text = t("autor") end
         if refs.plataforma then refs.plataforma.Text = esMovil and t("mobile") or t("pc") end
         if refs.tiempoEncendidoLabel then refs.tiempoEncendidoLabel.Text = t("tiempoEncendidoLabel") end
@@ -1918,6 +2562,9 @@ local function reconstruirMenu()
             opt.btn.TextColor3 = sel and ORO or TEXTO
             if opt.stroke then opt.stroke.Transparency = sel and 0.2 or 0.85 end
         end
+
+        if discordLabel then discordLabel.Text = t("discord") end
+        if discordCopiado then discordCopiado.Text = t("discordCopiado") end
     end
 
     cambiarIdioma = function(codigo)
@@ -1964,7 +2611,7 @@ local function reconstruirMenu()
 
         local ok, err = pcall(aplicarIdioma)
         if not ok then
-            warn("[SC v2] aplicarIdioma error: " .. tostring(err))
+            warn("[SC v2.2] aplicarIdioma error: " .. tostring(err))
         end
 
         if mainEstabaVisible then main.Visible = true end
@@ -1980,4 +2627,4 @@ end
 
 reconstruirMenu()
 
-print("[Speed Click for Owner v2] Listo · " .. (esMovil and "Mobile" or "PC") .. " · Idioma: " .. idiomaActual)
+print("[Speed Click for Owner v2.2] Listo · " .. (esMovil and "Mobile" or "PC") .. " · Idioma: " .. idiomaActual)
